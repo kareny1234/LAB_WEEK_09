@@ -15,6 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import androidx.navigation.compose.rememberNavController
 import com.example.lab_week_09.ui.theme.*
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +32,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Home()
+                    val navController = rememberNavController()
+                    App(navController = navController)
                 }
             }
         }
@@ -36,7 +43,24 @@ class MainActivity : ComponentActivity() {
 data class Student(var name: String)
 
 @Composable
-fun Home() {
+fun App(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "home") {
+        composable("home") {
+            Home { list ->
+                navController.navigate("resultContent/?listData=$list")
+            }
+        }
+        composable(
+            "resultContent/?listData={listData}",
+            arguments = listOf(navArgument("listData") { type = NavType.StringType })
+        ) {
+            ResultContent(it.arguments?.getString("listData").orEmpty())
+        }
+    }
+}
+
+@Composable
+fun Home(navigateFromHomeToResult: (String) -> Unit) {
     val listData = remember {
         mutableStateListOf(
             Student("Tanu"),
@@ -55,7 +79,8 @@ fun Home() {
                 listData.add(inputField)
                 inputField = Student("")
             }
-        }
+        },
+        navigateFromHomeToResult = { navigateFromHomeToResult(listData.toList().toString()) }
     )
 }
 
@@ -64,7 +89,8 @@ fun HomeContent(
     listData: SnapshotStateList<Student>,
     inputField: Student,
     onInputValueChange: (String) -> Unit,
-    onButtonClick: () -> Unit
+    onButtonClick: () -> Unit,
+    navigateFromHomeToResult: () -> Unit
 ) {
     LazyColumn {
         item {
@@ -93,20 +119,40 @@ fun HomeContent(
                     ),
                     textStyle = MaterialTheme.typography.bodySmall
                 )
-                Button(
-                    onClick = onButtonClick,
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth(0.4f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.button_click),
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    Button(
+                        onClick = onButtonClick,
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(0.4f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.button_click),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                    Button(
+                        onClick = navigateFromHomeToResult,
+                        modifier = Modifier
+                            .padding(top = 12.dp, start = 8.dp)
+                            .fillMaxWidth(0.4f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.button_navigate),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 }
             }
         }
@@ -120,5 +166,17 @@ fun HomeContent(
                 OnBackgroundItemText(text = item.name)
             }
         }
+    }
+}
+
+@Composable
+fun ResultContent(listData: String) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OnBackgroundItemText(text = listData)
     }
 }

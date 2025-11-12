@@ -52,12 +52,13 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-    // Jetpack Compose
     implementation("androidx.activity:activity-compose:1.9.2")
     implementation("androidx.compose.ui:ui:1.7.3")
-    implementation("androidx.compose.foundation:foundation:1.7.3") // ⬅️ Tambahkan baris ini
+    implementation("androidx.compose.foundation:foundation:1.7.3")
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.3")
     implementation("androidx.compose.material3:material3:1.1.2")
+
+    implementation("androidx.navigation:navigation-compose:2.8.3")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.7.3")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.7.3")
